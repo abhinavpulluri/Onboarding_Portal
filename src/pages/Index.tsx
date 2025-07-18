@@ -1,6 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -8,8 +14,8 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Main Content */}
-      <div className="flex-grow">
-        <div className="container mx-auto px-4 py-16">
+      <div className="flex-grow flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-4xl">
           <div className="text-center mb-12">
             <img
               src="/logo.png"
@@ -24,26 +30,8 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-2xl">New Employee Portal</CardTitle>
-                <CardDescription>
-                  Get your personalized onboarding checklist based on your role, department, and experience level.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  onClick={() => navigate('/onboarding')}
-                  className="w-full"
-                  size="lg"
-                >
-                  Start My Onboarding
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
+          <div className="flex justify-center">
+            <Card className="w-full max-w-md hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="text-2xl">Login</CardTitle>
                 <CardDescription>
@@ -51,8 +39,8 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
-                  onClick={() => navigate('/login')}
+                <Button
+                  onClick={() => navigate("/login")}
                   className="w-full"
                   size="lg"
                   variant="outline"
@@ -78,7 +66,12 @@ const Index = () => {
           </a>
           <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4">
             © 2025 Synchrony —
-            <a href="https://twitter.com/knyttneve" className="text-gray-600 ml-1" rel="noopener noreferrer" target="_blank"></a>
+            <a
+              href="https://twitter.com/knyttneve"
+              className="text-gray-600 ml-1"
+              rel="noopener noreferrer"
+              target="_blank"
+            ></a>
           </p>
           <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
             {/* Social icons */}
