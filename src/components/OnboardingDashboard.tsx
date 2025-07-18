@@ -186,7 +186,11 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
               <p className="text-gray-600">Your personalized onboarding checklist</p>
             </div>
           </div>
-          <Button variant="outline" onClick={logout} className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            onClick={logout}
+            className="flex items-center space-x-2"
+          >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </Button>

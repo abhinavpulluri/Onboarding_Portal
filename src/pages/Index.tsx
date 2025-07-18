@@ -26,7 +26,7 @@ const Index = () => {
               Welcome to Synchrony Onboarding Portal
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Get started with your personalized onboarding journey tailored to your role and experience.
+              "Everything you need to start strong – tailored just for you."
             </p>
           </div>
 
@@ -47,6 +47,24 @@ const Index = () => {
                 >
                   Login
                 </Button>
+              </CardContent>
+            </Card>
+            <Card className="w-full max-w-md hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-2xl">Pre-boarding</CardTitle>
+                <CardDescription>
+                  New users can start their pre-boarding process to set up their profile and preferences.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() => navigate("/preboarding")}
+                  className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
+                  size="lg"
+                >
+                  Pre-board
+                </Button>
+
               </CardContent>
             </Card>
           </div>
