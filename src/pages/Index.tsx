@@ -11,7 +11,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Welcome to Our Company! 🎉
+            Welcome to Synchrony! 🎉
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Get started with your personalized onboarding journey tailored to your role and experience.
