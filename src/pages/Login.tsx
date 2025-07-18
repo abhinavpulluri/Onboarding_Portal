@@ -67,15 +67,6 @@ const LoginPage = () => {
             </div>
 
             <div className="flex items-center justify-center bg-gray-100 p-4">
-              <p className="text-center text-sm text-gray-500">
-                Don't have an account?{' '}
-                <span
-                  onClick={() => navigate('/onboarding')}
-                  className="text-black-500 cursor-pointer hover:text-black-600 active:text-black-700"
-                >
-                  Register
-                </span>
-              </p>
             </div>
           </form>
         </div>
