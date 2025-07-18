@@ -10,13 +10,19 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
+          <img
+            src="/logo.png"
+            alt="Synchrony Logo"
+            className="mx-auto h-16 w-auto mb-4"
+          />
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Welcome to Our Company! 🎉
+            Welcome to Synchrony Onboarding Portal
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Get started with your personalized onboarding journey tailored to your role and experience.
           </p>
         </div>
+
         
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <Card className="hover:shadow-lg transition-shadow">
