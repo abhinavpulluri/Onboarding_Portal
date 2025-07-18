@@ -5,26 +5,31 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Clock, User, Building, Trophy, LogOut } from 'lucide-react';
-import { User as UserType, OnboardingChecklist, ChecklistItem } from '@/types/User';
+import { User as UserType, OnboardingChecklist } from '@/types/User';
 import { ChecklistGenerator } from '@/utils/ChecklistGenerator';
-import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface OnboardingDashboardProps {
   user: UserType;
 }
 
 const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
-  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const logout = () => {
+    console.log('Logging out');
+    localStorage.removeItem('token'); // optional
+    navigate('/');
+  };
+
   const [checklist, setChecklist] = useState<OnboardingChecklist | null>(null);
   const [generator] = useState(new ChecklistGenerator());
 
   useEffect(() => {
-    // Check if checklist exists in localStorage
     const savedChecklist = localStorage.getItem(`checklist_${user.id}`);
     if (savedChecklist) {
       setChecklist(JSON.parse(savedChecklist));
     } else {
-      // Generate new checklist
       const newChecklist = generator.generateChecklist(user);
       setChecklist(newChecklist);
       localStorage.setItem(`checklist_${user.id}`, JSON.stringify(newChecklist));
@@ -96,7 +101,11 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
               <p className="text-gray-600">Your personalized onboarding checklist</p>
             </div>
           </div>
-          <Button variant="outline" onClick={logout} className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            onClick={logout}
+            className="flex items-center space-x-2"
+          >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </Button>

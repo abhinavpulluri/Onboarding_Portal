@@ -1,13 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: handle actual login logic here
-    navigate('/onboarding'); // redirect after login
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid email or password');
+      }
+
+      const data = await response.json();
+      console.log('Login Success:', data);
+
+      // Store token/session info if needed here
+      // localStorage.setItem('token', data.token);
+
+      navigate('/onboarding');
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
+    }
   };
 
   return (
@@ -39,7 +73,9 @@ const LoginPage = () => {
                 <input
                   type="email"
                   name="email"
-                  placeholder='yourcompany@synchrony.com'
+                  placeholder="yourcompany@synchrony.com"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
                 />
@@ -52,11 +88,15 @@ const LoginPage = () => {
                 <input
                   type="password"
                   name="password"
-                  placeholder='Enter your password'
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                   className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
                 />
               </div>
+
+              {error && <p className="text-red-600 text-sm">{error}</p>}
 
               <button
                 type="submit"
@@ -64,9 +104,6 @@ const LoginPage = () => {
               >
                 Log in
               </button>
-            </div>
-
-            <div className="flex items-center justify-center bg-gray-100 p-4">
             </div>
           </form>
         </div>
@@ -76,20 +113,13 @@ const LoginPage = () => {
       <footer className="text-gray-600 body-font">
         <div className="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
           <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
-            <img
-              src="/logo.png"
-              alt="Synchrony Logo"
-              className="h-10 w-auto"
-            />
+            <img src="/logo.png" alt="Synchrony Logo" className="h-10 w-auto" />
             <span className="ml-3 text-xl"></span>
           </a>
           <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4">
             © 2025 Synchrony —
             <a href="#" className="text-gray-600 ml-1" rel="noopener noreferrer" target="_blank">@Synchrony</a>
           </p>
-          <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-            {/* Social Icons if needed */}
-          </span>
         </div>
       </footer>
     </div>
