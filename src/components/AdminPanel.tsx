@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ interface TaskTemplate {
 
 const AdminPanel: React.FC = () => {
   const [templates, setTemplates] = useState<TaskTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newTask, setNewTask] = useState<Partial<TaskTemplate>>({
     title: '',
@@ -34,21 +36,33 @@ const AdminPanel: React.FC = () => {
     estimatedTime: 30
   });
 
-  const handleAddTask = () => {
+  // Fetch all task templates from Supabase
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('task_templates').select('*');
+      if (!error && data) setTemplates(data);
+      setLoading(false);
+    };
+    fetchTemplates();
+  }, []);
+
+  // Add a new task template to Supabase
+  const handleAddTask = async () => {
     if (newTask.title && newTask.description) {
-      const task: TaskTemplate = {
-        id: `task_${Date.now()}`,
-        title: newTask.title,
-        description: newTask.description,
-        category: newTask.category || 'General',
-        priority: newTask.priority || 'medium',
-        role: newTask.role || 'any',
-        department: newTask.department || 'any',
-        level: newTask.level || 'any',
-        estimatedTime: newTask.estimatedTime || 30
-      };
-      
-      setTemplates([...templates, task]);
+      const { data, error } = await supabase.from('task_templates').insert([
+        {
+          title: newTask.title,
+          description: newTask.description,
+          category: newTask.category || 'General',
+          priority: newTask.priority || 'medium',
+          role: newTask.role || 'any',
+          department: newTask.department || 'any',
+          level: newTask.level || 'any',
+          estimated_time: newTask.estimatedTime || 30
+        }
+      ]).select();
+      if (!error && data) setTemplates([...templates, ...data]);
       setNewTask({
         title: '',
         description: '',
@@ -63,8 +77,10 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleDeleteTask = (id: string) => {
-    setTemplates(templates.filter(task => task.id !== id));
+  // Delete a task template from Supabase
+  const handleDeleteTask = async (id: string) => {
+    const { error } = await supabase.from('task_templates').delete().eq('id', id);
+    if (!error) setTemplates(templates.filter(task => task.id !== id));
   };
 
   const getPriorityColor = (priority: string) => {
@@ -76,19 +92,169 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  // Synchrony onboarding tasks
+  const synchronyTasks: TaskTemplate[] = [
+    {
+      id: 'accept_offer',
+      title: 'Accept Offer Letter',
+      description: 'E-sign offer letter via portal/email.',
+      category: 'Pre-Onboarding',
+      priority: 'high',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 10
+    },
+    {
+      id: 'background_verification',
+      title: 'Complete Background Verification',
+      description: 'Submit documents: educational certificates, ID proof, address proof, PAN card, etc. Third-party background verification (education, employment history, criminal records).',
+      category: 'Pre-Onboarding',
+      priority: 'high',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 30
+    },
+    {
+      id: 'preboarding_portal',
+      title: 'Submit Pre-joining Documents',
+      description: 'Access onboarding portal, fill out joining forms, complete tax documentation, submit bank account details and UAN for EPF, upload photo and digital signature.',
+      category: 'Pre-Onboarding',
+      priority: 'medium',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 30
+    },
+    {
+      id: 'it_setup',
+      title: 'Receive Laptop & Login Credentials',
+      description: 'Instructions to receive laptop and email from IT team for login credentials and system access.',
+      category: 'Pre-Onboarding',
+      priority: 'medium',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 20
+    },
+    {
+      id: 'day1_induction',
+      title: 'Attend Day 1 Induction',
+      description: 'Welcome email, HR induction, company policies, culture, and values.',
+      category: 'Joining Day',
+      priority: 'high',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 60
+    },
+    {
+      id: 'sign_nda',
+      title: 'Sign NDA & Policy Documents',
+      description: 'Verification of original documents and submission of signed hardcopies if required.',
+      category: 'Joining Day',
+      priority: 'high',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 20
+    },
+    {
+      id: 'mandatory_trainings',
+      title: 'Complete Mandatory Trainings',
+      description: 'Code of Conduct, Data Security & Privacy, DE&I, Anti-Harassment & Ethics, Synchrony Culture & Values.',
+      category: 'First Week',
+      priority: 'high',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 120
+    },
+    {
+      id: 'meet_manager_team',
+      title: 'Meet Your Manager & Team',
+      description: 'Meet your manager and team members. Organizational structure overview.',
+      category: 'First Week',
+      priority: 'medium',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 30
+    },
+    {
+      id: 'setup_communication',
+      title: 'Setup Communication Tools (Email, Teams, etc.)',
+      description: 'Login to work email, Slack/Teams, Workday, ServiceNow, VPN, Duo 2FA, and other security setup.',
+      category: 'First Week',
+      priority: 'medium',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 30
+    },
+    {
+      id: 'role_training',
+      title: 'Start Role-Specific Training',
+      description: 'On-the-job training, shadowing colleagues, access to internal LMS.',
+      category: 'First 30–90 Days',
+      priority: 'medium',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 180
+    },
+    {
+      id: 'checkins',
+      title: 'Attend Check-ins with HR & Manager',
+      description: '1-on-1 with manager at 30, 60, and 90-day milestones. HR survey or onboarding feedback form.',
+      category: 'First 30–90 Days',
+      priority: 'low',
+      role: 'any',
+      department: 'any',
+      level: 'any',
+      estimatedTime: 30
+    }
+  ];
+
+  // Bulk insert synchrony tasks to Supabase (skip if already exists)
+  const handleGenerateSynchronyTasks = async () => {
+    const existingIds = new Set(templates.map(t => t.id));
+    const toInsert = synchronyTasks.filter(t => !existingIds.has(t.id));
+    if (toInsert.length > 0) {
+      const { data, error } = await supabase.from('task_templates').insert(
+        toInsert.map(t => ({
+          ...t,
+          estimated_time: t.estimatedTime
+        }))
+      ).select();
+      if (!error && data) setTemplates([...templates, ...data]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
-          <Button 
-            onClick={() => setIsAddingTask(true)}
-            className="flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Task Template</span>
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setIsAddingTask(true)}
+              className="flex items-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Task Template</span>
+            </Button>
+            <Button 
+              variant="secondary"
+              onClick={handleGenerateSynchronyTasks}
+              disabled={loading}
+            >
+              Generate Synchrony Onboarding Tasks
+            </Button>
+          </div>
         </div>
+        {loading && <div className="text-center text-gray-500">Loading tasks...</div>}
 
         {/* Add Task Form */}
         {isAddingTask && (
@@ -177,7 +343,11 @@ const AdminPanel: React.FC = () => {
 
                 <div>
                   <Label htmlFor="level">Level</Label>
-                  <Select value={newTask.level} onValueChange={(value) => setNewTask({...newTask, level: value})}>
+                  <Select
+                    value={newTask.level}
+                    onValueChange={(value) => setNewTask({ ...newTask, level: value })}
+                    disabled={newTask.role === 'intern'}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Any level" />
                     </SelectTrigger>

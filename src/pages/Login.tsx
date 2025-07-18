@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
+  const [errorMsg, setErrorMsg] = useState('');
+  // Hardcoded demo users
+  const demoUsers = [
+    { email: 'hr@Synchrony.com', password: 'synchrony@hr@1234', role: 'admin' },
+    ...Array.from({ length: 19 }, (_, i) => ({
+      email: `user${i + 1}@Synchrony.com`,
+      password: `user${i + 1}@demo1234`,
+      role: 'new_joiner'
+    }))
+  ];
+
   const handleLogin = (e) => {
     e.preventDefault();
-    // TODO: handle actual login logic here
-    navigate('/onboarding'); // redirect after login
+    setErrorMsg('');
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+    const user = demoUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+    if (!user) {
+      setErrorMsg('Invalid email or password.');
+      return;
+    }
+    if (user.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/onboarding');
+    }
   };
 
   return (
@@ -31,6 +57,7 @@ const LoginPage = () => {
           <h2 className="mb-4 text-center text-2xl font-bold text-gray-800 md:mb-8 lg:text-3xl">Login</h2>
 
           <form onSubmit={handleLogin} className="mx-auto max-w-lg rounded-lg border">
+            {errorMsg && <div className="text-red-600 text-center mb-2">{errorMsg}</div>}
             <div className="flex flex-col gap-4 p-4 md:p-8">
               <div>
                 <label htmlFor="email" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">

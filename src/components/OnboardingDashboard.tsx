@@ -1,4 +1,53 @@
 import React, { useState, useEffect } from 'react';
+// Welcome Popup Component
+const WelcomePopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div style={{
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999
+  }}>
+    <div style={{
+      backgroundColor: '#fff',
+      padding: 30,
+      borderRadius: 16,
+      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+      textAlign: 'center',
+      maxWidth: 400,
+      animation: 'fadeIn 0.5s ease-in-out'
+    }}>
+      <h2 style={{ color: '#004c99', marginBottom: 10 }}>Welcome to Synchrony! 🎉</h2>
+      <p style={{ fontSize: 16, color: '#444', marginBottom: 20 }}>
+        Hi there! We're excited to have you on board.<br />
+        Let's make something great together.
+      </p>
+      <button
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#004c99',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+          cursor: 'pointer'
+        }}
+        onClick={onClose}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
+        autoFocus
+      >
+        Let’s Get Started
+      </button>
+    </div>
+    <style>{`
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+    `}</style>
+  </div>
+);
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +55,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Clock, User, Building, Trophy, LogOut } from 'lucide-react';
 import { User as UserType, OnboardingChecklist, ChecklistItem } from '@/types/User';
-import { ChecklistGenerator } from '@/utils/ChecklistGenerator';
+import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface OnboardingDashboardProps {
@@ -14,22 +63,58 @@ interface OnboardingDashboardProps {
 }
 
 const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
+  const [showWelcome, setShowWelcome] = useState(false);
+  // Show welcome popup only for new users (first visit)
+  useEffect(() => {
+    const welcomeKey = `welcome_shown_${user.id}`;
+    if (!localStorage.getItem(welcomeKey)) {
+      setShowWelcome(true);
+      localStorage.setItem(welcomeKey, 'true');
+    }
+  }, [user.id]);
   const { logout } = useAuth();
   const [checklist, setChecklist] = useState<OnboardingChecklist | null>(null);
-  const [generator] = useState(new ChecklistGenerator());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if checklist exists in localStorage
-    const savedChecklist = localStorage.getItem(`checklist_${user.id}`);
-    if (savedChecklist) {
-      setChecklist(JSON.parse(savedChecklist));
-    } else {
-      // Generate new checklist
-      const newChecklist = generator.generateChecklist(user);
-      setChecklist(newChecklist);
-      localStorage.setItem(`checklist_${user.id}`, JSON.stringify(newChecklist));
-    }
-  }, [user, generator]);
+    // Fetch relevant tasks for this user from Supabase
+    const fetchTasks = async () => {
+      setLoading(true);
+      // Fetch tasks where role/department/level match user or are 'any'
+      const { data, error } = await supabase
+        .from('task_templates')
+        .select('*')
+        .or(`role.eq.${user.role},role.eq.any`)
+        .or(`department.eq.${user.department},department.eq.any`)
+        .or(`level.eq.${user.level},level.eq.any`);
+      if (!error && data) {
+        // Remove duplicates (if any)
+        const unique = Array.from(new Map(data.map(t => [t.id, t])).values());
+        // Build checklist structure
+        const items = unique.map(t => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          category: t.category,
+          priority: t.priority,
+          completed: false,
+          estimatedTime: t.estimated_time,
+        }));
+        const now = new Date().toISOString();
+        const checklistObj = {
+          id: `checklist_${user.id}`,
+          userId: user.id,
+          items,
+          progress: 0,
+          createdAt: now,
+          updatedAt: now,
+        };
+        setChecklist(checklistObj);
+      }
+      setLoading(false);
+    };
+    fetchTasks();
+  }, [user]);
 
   const handleTaskToggle = (taskId: string) => {
     if (!checklist) return;
@@ -75,8 +160,13 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
     }
   };
 
-  if (!checklist) {
+  if (loading || !checklist) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  // Show welcome popup overlay if needed
+  if (showWelcome) {
+    return <WelcomePopup onClose={() => setShowWelcome(false)} />;
   }
 
   const completedTasks = checklist.items.filter(item => item.completed).length;
