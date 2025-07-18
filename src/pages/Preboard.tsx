@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 const Preboarding = () => {
   const [formData, setFormData] = useState({
+    username: '',
+    email: '',
     taxForm: '',
     healthDeclaration: '',
     insuranceDetails: '',
@@ -9,9 +11,7 @@ const Preboarding = () => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
-    const { name, value, type } = target;
-    const checked = type === 'checkbox' ? (target as HTMLInputElement).checked : undefined;
+    const { name, value, type, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -46,6 +46,35 @@ const Preboarding = () => {
           <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Preboarding Form</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                placeholder="Enter your username"
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            {/* Tax Form */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tax Form Information</label>
               <textarea
@@ -59,6 +88,7 @@ const Preboarding = () => {
               />
             </div>
 
+            {/* Health Declaration */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Health Declaration</label>
               <textarea
@@ -72,6 +102,7 @@ const Preboarding = () => {
               />
             </div>
 
+            {/* Insurance Details */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Insurance Paperwork</label>
               <textarea
@@ -85,6 +116,7 @@ const Preboarding = () => {
               />
             </div>
 
+            {/* Rules & Regulations */}
             <div className="border-t pt-6">
               <h2 className="text-xl font-semibold mb-2">Synchrony - Rules and Regulations</h2>
               <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
@@ -97,6 +129,7 @@ const Preboarding = () => {
               </ul>
             </div>
 
+            {/* Agreement Checkbox */}
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -110,6 +143,7 @@ const Preboarding = () => {
               </label>
             </div>
 
+            {/* Submit Button */}
             <div className="text-center">
               <button
                 type="submit"
@@ -130,17 +164,8 @@ const Preboarding = () => {
             <span className="ml-3 text-xl"></span>
           </a>
           <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4">
-            © 2025 Synchrony —
-            <a
-              href="https://twitter.com/knyttneve"
-              className="text-gray-600 ml-1"
-              rel="noopener noreferrer"
-              target="_blank"
-            ></a>
+            © 2025 Synchrony
           </p>
-          <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-            {/* Social icons if needed */}
-          </span>
         </div>
       </footer>
     </div>
