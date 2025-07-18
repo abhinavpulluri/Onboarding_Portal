@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -22,10 +22,7 @@ const LoginPage = () => {
   };
 
   const handleLogin = (e) => {
-  const handleLogin = (e) => {
     e.preventDefault();
-    // TODO: handle actual login logic here
-    navigate('/onboarding'); // redirect after login
     setErrorMsg('');
     const { email, password } = formData;
     const user = demoUsers.find(
