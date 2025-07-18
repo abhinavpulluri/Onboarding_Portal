@@ -1,174 +1,40 @@
 import React, { useState, useEffect } from 'react';
-// Welcome Popup Component
-const WelcomePopup: React.FC<{ onClose: () => void }> = ({ onClose }) => (
-  <div style={{
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999
-  }}>
-    <div style={{
-      backgroundColor: '#fff',
-      padding: 30,
-      borderRadius: 16,
-      boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-      textAlign: 'center',
-      maxWidth: 400,
-      animation: 'fadeIn 0.5s ease-in-out'
-    }}>
-      <h2 style={{ color: '#004c99', marginBottom: 10 }}>Welcome to Synchrony! 🎉</h2>
-      <p style={{ fontSize: 16, color: '#444', marginBottom: 20 }}>
-        Hi there! We're excited to have you on board.<br />
-        Let's make something great together.
-      </p>
-      <button
-        style={{
-          padding: '10px 20px',
-          backgroundColor: '#004c99',
-          color: 'white',
-          border: 'none',
-          borderRadius: 8,
-          cursor: 'pointer'
-        }}
-        onClick={onClose}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClose(); }}
-        autoFocus
-      >
-        Let’s Get Started
-      </button>
-    </div>
-    <style>{`
-      @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-      }
-    `}</style>
-  </div>
-);
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Clock, User, Building, Trophy, LogOut } from 'lucide-react';
-import { User as UserType, OnboardingChecklist, ChecklistItem } from '@/types/User';
-import { supabase } from '@/lib/supabaseClient';
-import { useAuth } from '@/contexts/AuthContext';
+import { User as UserType, OnboardingChecklist } from '@/types/User';
+import { ChecklistGenerator } from '@/utils/ChecklistGenerator';
+import { useNavigate } from 'react-router-dom';
 
 interface OnboardingDashboardProps {
   user: UserType;
 }
 
 const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
-  const [showWelcome, setShowWelcome] = useState(false);
-  // Show welcome popup only for new users (first visit)
-  useEffect(() => {
-    const welcomeKey = `welcome_shown_${user.id}`;
-    if (!localStorage.getItem(welcomeKey)) {
-      setShowWelcome(true);
-      localStorage.setItem(welcomeKey, 'true');
-    }
-  }, [user.id]);
-  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const logout = () => {
+    console.log('Logging out');
+    localStorage.removeItem('token'); // optional
+    navigate('/');
+  };
+
   const [checklist, setChecklist] = useState<OnboardingChecklist | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [generator] = useState(new ChecklistGenerator());
 
   useEffect(() => {
-    // Demo fallback tasks
-    const demoTasks = [
-      {
-        id: '1',
-        title: 'Set up your Synchrony account',
-        description: 'Log in and update your profile information.',
-        category: 'Setup',
-        priority: 'high',
-        completed: false,
-        estimatedTime: 10,
-      },
-      {
-        id: '2',
-        title: 'Meet your team',
-        description: 'Attend the welcome meeting with your team.',
-        category: 'Meetings',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: 30,
-      },
-      {
-        id: '3',
-        title: 'Complete onboarding training',
-        description: 'Finish the required onboarding modules.',
-        category: 'Training',
-        priority: 'high',
-        completed: false,
-        estimatedTime: 60,
-      },
-      {
-        id: '4',
-        title: 'Setup work tools',
-        description: 'Install and configure all necessary software.',
-        category: 'Setup',
-        priority: 'medium',
-        completed: false,
-        estimatedTime: 20,
-      },
-      {
-        id: '5',
-        title: 'Read company handbook',
-        description: 'Review the Synchrony employee handbook.',
-        category: 'Learning',
-        priority: 'low',
-        completed: false,
-        estimatedTime: 15,
-      },
-    ];
-
-    const fetchTasks = async () => {
-      setLoading(true);
-      let items = [];
-      try {
-        const { data, error } = await supabase
-          .from('task_templates')
-          .select('*')
-          .or(`role.eq.${user.role},role.eq.any`)
-          .or(`department.eq.${user.department},department.eq.any`)
-          .or(`level.eq.${user.level},level.eq.any`);
-        if (!error && data && data.length > 0) {
-          // Remove duplicates (if any)
-          const unique = Array.from(new Map(data.map(t => [t.id, t])).values());
-          items = unique.map(t => ({
-            id: t.id,
-            title: t.title,
-            description: t.description,
-            category: t.category,
-            priority: t.priority,
-            completed: false,
-            estimatedTime: t.estimated_time,
-          }));
-        } else {
-          // Use demo tasks if no data or error
-          items = demoTasks;
-        }
-      } catch (err) {
-        items = demoTasks;
-      }
-      const now = new Date().toISOString();
-      const checklistObj = {
-        id: `checklist_${user.id}`,
-        userId: user.id,
-        items,
-        progress: 0,
-        createdAt: now,
-        updatedAt: now,
-      };
-      setChecklist(checklistObj);
-      setLoading(false);
-    };
-    fetchTasks();
-  }, [user]);
+    const savedChecklist = localStorage.getItem(`checklist_${user.id}`);
+    if (savedChecklist) {
+      setChecklist(JSON.parse(savedChecklist));
+    } else {
+      const newChecklist = generator.generateChecklist(user);
+      setChecklist(newChecklist);
+      localStorage.setItem(`checklist_${user.id}`, JSON.stringify(newChecklist));
+    }
+  }, [user, generator]);
 
   const handleTaskToggle = (taskId: string) => {
     if (!checklist) return;
@@ -189,15 +55,6 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
 
     setChecklist(updatedChecklist);
     localStorage.setItem(`checklist_${user.id}`, JSON.stringify(updatedChecklist));
-
-    // If completed, mark in localStorage for admin panel
-    if (progress === 100) {
-      let completedUsers = JSON.parse(localStorage.getItem('completed_users') || '[]');
-      if (!completedUsers.includes(user.email)) {
-        completedUsers.push(user.email);
-        localStorage.setItem('completed_users', JSON.stringify(completedUsers));
-      }
-    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -211,7 +68,7 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Setup': return '⚙️';
+      case 'Setup': return '⚙';
       case 'Learning': return '📚';
       case 'Meetings': return '🤝';
       case 'Training': return '🎓';
@@ -223,13 +80,8 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
     }
   };
 
-  if (loading || !checklist) {
+  if (!checklist) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
-  // Show welcome popup overlay if needed
-  if (showWelcome) {
-    return <WelcomePopup onClose={() => setShowWelcome(false)} />;
   }
 
   const completedTasks = checklist.items.filter(item => item.completed).length;
