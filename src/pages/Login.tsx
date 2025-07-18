@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -7,6 +6,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
   // Hardcoded demo users
   const demoUsers = [
     { email: 'hr@Synchrony.com', password: 'synchrony@hr@1234', role: 'admin' },
@@ -17,12 +17,14 @@ const LoginPage = () => {
     }))
   ];
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
     setErrorMsg('');
-    const form = e.target;
-    const email = form.email.value;
-    const password = form.password.value;
+    const { email, password } = formData;
     const user = demoUsers.find(
       (u) => u.email === email && u.password === password
     );
@@ -90,7 +92,7 @@ const LoginPage = () => {
                 />
               </div>
 
-              {error && <p className="text-red-600 text-sm">{error}</p>}
+
 
               <button
                 type="submit"
