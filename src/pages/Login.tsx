@@ -66,33 +66,33 @@ const LoginPage = () => {
                 <label htmlFor="email" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
                   Email
                 </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="yourcompany@synchrony.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
-                />
+            <input
+              type="email"
+              name="email"
+              placeholder="yourcompany@synchrony.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
+            />
               </div>
 
               <div>
                 <label htmlFor="password" className="mb-2 inline-block text-sm text-gray-800 sm:text-base">
                   Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
-                />
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded border bg-gray-50 px-3 py-2 text-gray-800 outline-none ring-indigo-300 transition duration-100 focus:ring"
+            />
               </div>
 
-
+              {/* errorMsg already shown above, remove duplicate error */}
 
               <button
                 type="submit"

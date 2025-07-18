@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit, LogOut } from 'lucide-react';
 
 interface TaskTemplate {
   id: string;
@@ -21,7 +21,11 @@ interface TaskTemplate {
   estimatedTime: number;
 }
 
-const AdminPanel: React.FC = () => {
+  const AdminPanel: React.FC = () => {
+    // Simple demo logout: redirect to login
+    const handleLogout = () => {
+      window.location.href = '/';
+    };
   const [templates, setTemplates] = useState<TaskTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -237,7 +241,7 @@ const AdminPanel: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Admin Panel</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button 
               onClick={() => setIsAddingTask(true)}
               className="flex items-center space-x-2"
@@ -245,12 +249,13 @@ const AdminPanel: React.FC = () => {
               <Plus className="w-4 h-4" />
               <span>Add Task Template</span>
             </Button>
-            <Button 
-              variant="secondary"
-              onClick={handleGenerateSynchronyTasks}
-              disabled={loading}
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="flex items-center space-x-2"
             >
-              Generate Synchrony Onboarding Tasks
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
             </Button>
           </div>
         </div>
@@ -384,6 +389,20 @@ const AdminPanel: React.FC = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Onboarding Completion List (Demo) */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-green-700 mb-2">Completed Onboarding (Demo)</h2>
+          {typeof window !== 'undefined' && JSON.parse(localStorage.getItem('completed_users') || '[]').length === 0 ? (
+            <div className="text-gray-500">No users have completed onboarding yet.</div>
+          ) : (
+            <ul className="list-disc ml-6 text-green-800">
+              {typeof window !== 'undefined' && JSON.parse(localStorage.getItem('completed_users') || '[]').map(email => (
+                <li key={email}>{email}</li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {/* Task Templates List */}
         <div className="space-y-4">

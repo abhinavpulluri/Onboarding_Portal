@@ -77,40 +77,94 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch relevant tasks for this user from Supabase
+    // Demo fallback tasks
+    const demoTasks = [
+      {
+        id: '1',
+        title: 'Set up your Synchrony account',
+        description: 'Log in and update your profile information.',
+        category: 'Setup',
+        priority: 'high',
+        completed: false,
+        estimatedTime: 10,
+      },
+      {
+        id: '2',
+        title: 'Meet your team',
+        description: 'Attend the welcome meeting with your team.',
+        category: 'Meetings',
+        priority: 'medium',
+        completed: false,
+        estimatedTime: 30,
+      },
+      {
+        id: '3',
+        title: 'Complete onboarding training',
+        description: 'Finish the required onboarding modules.',
+        category: 'Training',
+        priority: 'high',
+        completed: false,
+        estimatedTime: 60,
+      },
+      {
+        id: '4',
+        title: 'Setup work tools',
+        description: 'Install and configure all necessary software.',
+        category: 'Setup',
+        priority: 'medium',
+        completed: false,
+        estimatedTime: 20,
+      },
+      {
+        id: '5',
+        title: 'Read company handbook',
+        description: 'Review the Synchrony employee handbook.',
+        category: 'Learning',
+        priority: 'low',
+        completed: false,
+        estimatedTime: 15,
+      },
+    ];
+
     const fetchTasks = async () => {
       setLoading(true);
-      // Fetch tasks where role/department/level match user or are 'any'
-      const { data, error } = await supabase
-        .from('task_templates')
-        .select('*')
-        .or(`role.eq.${user.role},role.eq.any`)
-        .or(`department.eq.${user.department},department.eq.any`)
-        .or(`level.eq.${user.level},level.eq.any`);
-      if (!error && data) {
-        // Remove duplicates (if any)
-        const unique = Array.from(new Map(data.map(t => [t.id, t])).values());
-        // Build checklist structure
-        const items = unique.map(t => ({
-          id: t.id,
-          title: t.title,
-          description: t.description,
-          category: t.category,
-          priority: t.priority,
-          completed: false,
-          estimatedTime: t.estimated_time,
-        }));
-        const now = new Date().toISOString();
-        const checklistObj = {
-          id: `checklist_${user.id}`,
-          userId: user.id,
-          items,
-          progress: 0,
-          createdAt: now,
-          updatedAt: now,
-        };
-        setChecklist(checklistObj);
+      let items = [];
+      try {
+        const { data, error } = await supabase
+          .from('task_templates')
+          .select('*')
+          .or(`role.eq.${user.role},role.eq.any`)
+          .or(`department.eq.${user.department},department.eq.any`)
+          .or(`level.eq.${user.level},level.eq.any`);
+        if (!error && data && data.length > 0) {
+          // Remove duplicates (if any)
+          const unique = Array.from(new Map(data.map(t => [t.id, t])).values());
+          items = unique.map(t => ({
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            category: t.category,
+            priority: t.priority,
+            completed: false,
+            estimatedTime: t.estimated_time,
+          }));
+        } else {
+          // Use demo tasks if no data or error
+          items = demoTasks;
+        }
+      } catch (err) {
+        items = demoTasks;
       }
+      const now = new Date().toISOString();
+      const checklistObj = {
+        id: `checklist_${user.id}`,
+        userId: user.id,
+        items,
+        progress: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+      setChecklist(checklistObj);
       setLoading(false);
     };
     fetchTasks();
@@ -135,6 +189,15 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
 
     setChecklist(updatedChecklist);
     localStorage.setItem(`checklist_${user.id}`, JSON.stringify(updatedChecklist));
+
+    // If completed, mark in localStorage for admin panel
+    if (progress === 100) {
+      let completedUsers = JSON.parse(localStorage.getItem('completed_users') || '[]');
+      if (!completedUsers.includes(user.email)) {
+        completedUsers.push(user.email);
+        localStorage.setItem('completed_users', JSON.stringify(completedUsers));
+      }
+    }
   };
 
   const getPriorityColor = (priority: string) => {
