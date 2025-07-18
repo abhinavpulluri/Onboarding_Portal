@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -22,7 +22,10 @@ const LoginPage = () => {
   };
 
   const handleLogin = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
+    // TODO: handle actual login logic here
+    navigate('/onboarding'); // redirect after login
     setErrorMsg('');
     const { email, password } = formData;
     const user = demoUsers.find(
@@ -101,6 +104,9 @@ const LoginPage = () => {
                 Log in
               </button>
             </div>
+
+            <div className="flex items-center justify-center bg-gray-100 p-4">
+            </div>
           </form>
         </div>
       </div>
@@ -109,13 +115,20 @@ const LoginPage = () => {
       <footer className="text-gray-600 body-font">
         <div className="container px-5 py-8 mx-auto flex items-center sm:flex-row flex-col">
           <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
-            <img src="/logo.png" alt="Synchrony Logo" className="h-10 w-auto" />
+            <img
+              src="/logo.png"
+              alt="Synchrony Logo"
+              className="h-10 w-auto"
+            />
             <span className="ml-3 text-xl"></span>
           </a>
           <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4">
             © 2025 Synchrony —
             <a href="#" className="text-gray-600 ml-1" rel="noopener noreferrer" target="_blank">@Synchrony</a>
           </p>
+          <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
+            {/* Social Icons if needed */}
+          </span>
         </div>
       </footer>
     </div>
