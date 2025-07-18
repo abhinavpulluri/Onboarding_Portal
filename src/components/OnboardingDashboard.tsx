@@ -18,7 +18,7 @@ const OnboardingDashboard: React.FC<OnboardingDashboardProps> = ({ user }) => {
 
   const logout = () => {
     console.log('Logging out');
-    localStorage.removeItem('token'); // optional
+    localStorage.removeItem('token');
     navigate('/');
   };
 

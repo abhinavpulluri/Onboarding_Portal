@@ -10,6 +10,7 @@ const LoginPage = () => {
   // Hardcoded demo users
   const demoUsers = [
     { email: 'hr@Synchrony.com', password: 'synchrony@hr@1234', role: 'admin' },
+    { email: 'test@gmail.com', password: 'test123', role: 'admin' },
     ...Array.from({ length: 19 }, (_, i) => ({
       email: `user${i + 1}@Synchrony.com`,
       password: `user${i + 1}@demo1234`,
